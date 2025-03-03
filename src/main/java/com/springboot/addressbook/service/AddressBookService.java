@@ -3,41 +3,53 @@ package com.springboot.addressbook.service;
 import com.springboot.addressbook.dto.AddressBookDTO;
 import org.springframework.stereotype.Service;
 import com.springboot.addressbook.model.AddressBook;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressBookService {
-    private final Map<Integer, AddressBook> addressBook = new HashMap<>();
+    private final List<AddressBook> addressBookList = new ArrayList<>();
 
-    public Map<Integer, AddressBook> getAllEntries() {
-        return addressBook;
+    public List<AddressBook> getAllEntries() {
+        return addressBookList;
     }
 
     public AddressBook getEntryById(int id) {
-        return addressBook.get(id);
+        return addressBookList.stream()
+                .filter(entry -> entry.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
 
     public String addEntry(int id, AddressBookDTO dto) {
-        addressBook.put(id, new AddressBook(id, dto.getName()));
+        addressBookList.add(new AddressBook(id, dto.getName()));
         return "Entry added successfully";
     }
 
     public String updateEntry(int id, AddressBookDTO dto) {
-        if (addressBook.containsKey(id)) {
-            addressBook.get(id).setName(dto.getName());
+        Optional<AddressBook> entryOptional = addressBookList.stream()
+                .filter(entry -> entry.getId() == id)
+                .findFirst();
+
+        if (entryOptional.isPresent()) {
+            entryOptional.get().setName(dto.getName());
             return "Entry updated successfully";
         }
         return "Entry not found";
     }
 
     public String deleteEntry(int id) {
-        if (addressBook.containsKey(id)) {
-            addressBook.remove(id);
+        Optional<AddressBook> entryOptional = addressBookList.stream()
+                .filter(entry -> entry.getId() == id)
+                .findFirst();
+
+        if (entryOptional.isPresent()) {
+            addressBookList.remove(entryOptional.get());
             return "Entry deleted successfully";
         }
         return "Entry not found";
     }
 }
+
 

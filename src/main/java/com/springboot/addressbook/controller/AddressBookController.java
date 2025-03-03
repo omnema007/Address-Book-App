@@ -5,8 +5,7 @@ import com.springboot.addressbook.model.AddressBook;
 import org.springframework.http.ResponseEntity;
 import com.springboot.addressbook.service.AddressBookService;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/addressbook")
@@ -18,7 +17,7 @@ public class AddressBookController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<Integer, AddressBook>> getAllEntries() {
+    public ResponseEntity<List<AddressBook>> getAllEntries() {
         return ResponseEntity.ok(addressBookService.getAllEntries());
     }
 
