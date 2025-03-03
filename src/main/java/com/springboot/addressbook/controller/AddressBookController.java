@@ -1,5 +1,7 @@
 package com.springboot.addressbook.controller;
 
+import com.springboot.addressbook.dto.AddressBookDTO;
+import com.springboot.addressbook.model.AddressBook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,30 +11,31 @@ import java.util.Map;
 @RestController
 @RequestMapping("/addressbook")
 public class AddressBookController {
-    private Map<Integer, String> addressBook = new HashMap<>();
+    private Map<Integer, AddressBook> addressBook = new HashMap<>();
 
     @GetMapping
-    public ResponseEntity<Map<Integer, String>> getAllEntries() {
+    public ResponseEntity<Map<Integer, AddressBook>> getAllEntries() {
         return ResponseEntity.ok(addressBook);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getEntryById(@PathVariable int id) {
+    public ResponseEntity<AddressBook> getEntryById(@PathVariable int id) {
         return addressBook.containsKey(id) ?
                 ResponseEntity.ok(addressBook.get(id)) :
                 ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public ResponseEntity<String> addEntry(@RequestParam int id, @RequestParam String name) {
-        addressBook.put(id, name);
+    public ResponseEntity<String> addEntry(@RequestParam int id, @RequestBody AddressBookDTO dto) {
+        AddressBook entry = new AddressBook(id, dto.getName());
+        addressBook.put(id, entry);
         return ResponseEntity.ok("Entry added successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateEntry(@PathVariable int id, @RequestParam String name) {
+    public ResponseEntity<String> updateEntry(@PathVariable int id, @RequestBody AddressBookDTO dto) {
         if (addressBook.containsKey(id)) {
-            addressBook.put(id, name);
+            addressBook.get(id).setName(dto.getName());
             return ResponseEntity.ok("Entry updated successfully");
         }
         return ResponseEntity.notFound().build();
@@ -47,4 +50,5 @@ public class AddressBookController {
         return ResponseEntity.notFound().build();
     }
 }
+
 
