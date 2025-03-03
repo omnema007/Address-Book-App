@@ -3,52 +3,48 @@ package com.springboot.addressbook.controller;
 import com.springboot.addressbook.dto.AddressBookDTO;
 import com.springboot.addressbook.model.AddressBook;
 import org.springframework.http.ResponseEntity;
+import com.springboot.addressbook.service.AddressBookService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 import java.util.Map;
+
 
 @RestController
 @RequestMapping("/addressbook")
 public class AddressBookController {
-    private Map<Integer, AddressBook> addressBook = new HashMap<>();
+    private final AddressBookService addressBookService;
+
+    public AddressBookController(AddressBookService addressBookService) {
+        this.addressBookService = addressBookService;
+    }
 
     @GetMapping
     public ResponseEntity<Map<Integer, AddressBook>> getAllEntries() {
-        return ResponseEntity.ok(addressBook);
+        return ResponseEntity.ok(addressBookService.getAllEntries());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AddressBook> getEntryById(@PathVariable int id) {
-        return addressBook.containsKey(id) ?
-                ResponseEntity.ok(addressBook.get(id)) :
-                ResponseEntity.notFound().build();
+        AddressBook entry = addressBookService.getEntryById(id);
+        return entry != null ? ResponseEntity.ok(entry) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<String> addEntry(@RequestParam int id, @RequestBody AddressBookDTO dto) {
-        AddressBook entry = new AddressBook(id, dto.getName());
-        addressBook.put(id, entry);
-        return ResponseEntity.ok("Entry added successfully");
+        return ResponseEntity.ok(addressBookService.addEntry(id, dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateEntry(@PathVariable int id, @RequestBody AddressBookDTO dto) {
-        if (addressBook.containsKey(id)) {
-            addressBook.get(id).setName(dto.getName());
-            return ResponseEntity.ok("Entry updated successfully");
-        }
-        return ResponseEntity.notFound().build();
+        String response = addressBookService.updateEntry(id, dto);
+        return response.equals("Entry not found") ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEntry(@PathVariable int id) {
-        if (addressBook.containsKey(id)) {
-            addressBook.remove(id);
-            return ResponseEntity.ok("Entry deleted successfully");
-        }
-        return ResponseEntity.notFound().build();
+        String response = addressBookService.deleteEntry(id);
+        return response.equals("Entry not found") ? ResponseEntity.notFound().build() : ResponseEntity.ok(response);
     }
 }
+
 
 
